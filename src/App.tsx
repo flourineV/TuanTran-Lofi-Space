@@ -3,7 +3,12 @@ import { CloudRain, Flame, Coffee, Bird, Leaf, Droplet } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import AudioPlayer from "./components/AudioPlayer";
 import SupportButton from "./components/SupportButton";
+import InfoModal from "./components/InfoModal";
+import PomodoroModal from "./components/PomodoroModal";
+import TodoModal from "./components/TodoModal";
 import { Typewriter } from "react-simple-typewriter";
+import { InfoIcon, TimerIcon, CheckSquareIcon } from "lucide-react";
+import Tooltip from "./components/Tooltip";
 
 const backgrounds = [
   "https://yorunpfvofhfoovznxfd.supabase.co/storage/v1/object/sign/lofispaceassets/bg3.gif?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJsb2Zpc3BhY2Vhc3NldHMvYmczLmdpZiIsImlhdCI6MTc0MjczMDg0NiwiZXhwIjoyMDg4MzMwODQ2fQ.7g3EN3rLBLeqObNeWTs3h9VcfeSQ01DRTR2oG13Paic",
@@ -81,11 +86,15 @@ function App() {
   const [currentBg, setCurrentBg] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [displayEffectNames, setDisplayEffectNames] = useState<string[]>([]);
+  const [selectedModal, setSelectedModal] = useState<
+    "info" | "pomo" | "todo" | null
+  >(null);
 
   const [flashTrigger, setFlashTrigger] = useState<false | "strong" | "weak">(
     false
   );
   type LofiType = "Study" | "Typing" | "JazzHop" | "Samurai" | "Night lullaby";
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
 
   const [selectedType, setSelectedType] = useState<LofiType>("Study");
   const [activeEffects, setActiveEffects] = useState<boolean[]>(
@@ -179,6 +188,40 @@ function App() {
     setShowIntro(false);
     setIsPlaying(true);
   };
+
+  useEffect(() => {
+    const handleTouchStart = (e: TouchEvent) => {
+      setTouchStartX(e.touches[0].clientX);
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (touchStartX === null) return;
+      const touchEndX = e.changedTouches[0].clientX;
+      const diff = touchStartX - touchEndX;
+
+      if (Math.abs(diff) > 20) {
+        if (diff > 0) {
+          // Vuốt sang trái: next background
+          setCurrentBg((prev) => (prev + 1) % backgrounds.length);
+        } else {
+          // Vuốt sang phải: previous background
+          setCurrentBg(
+            (prev) => (prev - 1 + backgrounds.length) % backgrounds.length
+          );
+        }
+      }
+
+      setTouchStartX(null);
+    };
+
+    window.addEventListener("touchstart", handleTouchStart);
+    window.addEventListener("touchend", handleTouchEnd);
+
+    return () => {
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchend", handleTouchEnd);
+    };
+  }, [touchStartX]);
 
   return (
     <div className="w-full h-screen bg-black flex items-center justify-center relative">
@@ -314,6 +357,52 @@ function App() {
                 />
               ))}{" "}
             </div>{" "}
+            <div className="absolute top-6 left-6 gap-3 z-50 md:flex hidden">
+              {/* Info Button + Modal */}
+              <div className="relative">
+                <button
+                  onClick={() => setSelectedModal("info")}
+                  className="w-12 h-12 bg-black/70 rounded-full flex items-center justify-center transition"
+                >
+                  <InfoIcon size={24} />
+                </button>
+                {selectedModal === "info" && (
+                  <div className="absolute top-14 left-0">
+                    <InfoModal onClose={() => setSelectedModal(null)} />
+                  </div>
+                )}
+              </div>
+
+              {/* Pomodoro Button + Modal */}
+              <div className="relative">
+                <button
+                  onClick={() => setSelectedModal("pomo")}
+                  className="w-12 h-12 bg-black/70 rounded-full flex items-center justify-center transition"
+                >
+                  <TimerIcon size={24} />
+                </button>
+                {selectedModal === "pomo" && (
+                  <div className="absolute top-14 -left-14">
+                    <PomodoroModal onClose={() => setSelectedModal(null)} />
+                  </div>
+                )}
+              </div>
+
+              {/* Todo Button + Modal */}
+              <div className="relative">
+                <button
+                  onClick={() => setSelectedModal("todo")}
+                  className="w-12 h-12 bg-black/70 rounded-full flex items-center justify-center transition"
+                >
+                  <CheckSquareIcon size={24} />
+                </button>
+                {selectedModal === "todo" && (
+                  <div className="absolute top-14 -left-28">
+                    <TodoModal onClose={() => setSelectedModal(null)} />
+                  </div>
+                )}
+              </div>
+            </div>
             <div className="absolute top-28 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center mt-16 md:mt-0 ml-2 md:ml-0">
               {/* Title */}
               <h1 className="text-white text-3xl md:text-4xl font-bold font-mono text-center">
@@ -330,7 +419,7 @@ function App() {
               </div>
 
               {/* Instructions */}
-              <div className="bg-black/50 text-white px-4 py-2 rounded-full text-xs flex flex-wrap items-center gap-2 justify-center mt-2">
+              <div className="bg-black/50 text-white px-4 py-2 rounded-full text-xs flex md-flex-wrap items-center gap-2 justify-center mt-2">
                 <span>Press</span>
                 <span className="bg-gray-500 px-2 py-1 rounded">←</span>
                 <span className="bg-gray-500 px-2 py-1 rounded">→</span>
@@ -339,7 +428,7 @@ function App() {
                 <span>to play/pause music</span>
               </div>
             </div>
-            <div className="absolute top-52 left-1/2 transform -translate-x-1/2 flex flex-wrap justify-center gap-3 mt-32 md:mt-0">
+            <div className="absolute md:top-52 top-36 left-1/2 transform -translate-x-1/2 flex flex-wrap justify-center gap-3 mt-32 md:mt-0">
               {" "}
               {Object.keys(musicLibrary).map((type) => (
                 <button
@@ -386,26 +475,26 @@ function App() {
               ))}{" "}
             </div>{" "}
             {/* Sound Effect Buttons */}{" "}
-            <div className="absolute md:top-2/3 top-3/4  right-7 transform -translate-y-1/2 flex flex-col gap-4">
+            <div className="absolute md:top-[490px] top-3/4  right-6 transform -translate-y-1/2 flex flex-col gap-4">
               {" "}
               {soundNames.map((name, index) => {
                 const IconComponent = icons[index];
                 return (
-                  <button
-                    key={index}
-                    onClick={() => toggleEffect(index)}
-                    className={`w-12 h-12 flex items-center justify-center rounded-full transition-all focus:outline-none ${
-                      activeEffects[index] ? "bg-yellow-300" : "bg-black/50"
-                    }`}
-                    tabIndex={-1} // Không cho focus
-                    onMouseDown={(e) => e.preventDefault()}
-                  >
-                    {" "}
-                    <IconComponent
-                      color={activeEffects[index] ? "black" : "white"}
-                      size={24}
-                    />{" "}
-                  </button>
+                  <Tooltip text={name}>
+                    <button
+                      onClick={() => toggleEffect(index)}
+                      className={`w-12 h-12 flex items-center justify-center rounded-full transition-all focus:outline-none ${
+                        activeEffects[index] ? "bg-yellow-300" : "bg-black/50"
+                      }`}
+                      tabIndex={-1}
+                      onMouseDown={(e) => e.preventDefault()}
+                    >
+                      <IconComponent
+                        color={activeEffects[index] ? "black" : "white"}
+                        size={24}
+                      />
+                    </button>
+                  </Tooltip>
                 );
               })}{" "}
             </div>{" "}
