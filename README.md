@@ -1,6 +1,10 @@
 # 🎧 TuanTran Lofi Space
 
-![vite + supabase](https://user-images.githubusercontent.com/83855174/234365740-6ce71b9b-1b11-4fc7-b0e5-8738a7b27c24.png)
+<p align="center">
+  <img src="https://cdn.thenewstack.io/media/2023/11/c64beaf2-vite.png" alt="Vite Logo" width="120"/>
+  &nbsp;&nbsp;&nbsp;
+  <img src="https://logowik.com/content/uploads/images/supabase-icon9119.logowik.com.webp" alt="Supabase Logo" width="120"/>
+</p>
 
 A chill and minimal lofi web app built with **Vite + React**, powered by **Supabase** for audio and image hosting.
 This project offers a cozy space to study, relax, or focus — with multiple background environments, ambient sounds, and lofi playlists.
