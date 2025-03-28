@@ -361,7 +361,11 @@ function App() {
               {/* Info Button + Modal */}
               <div className="relative">
                 <button
-                  onClick={() => setSelectedModal("info")}
+                  onClick={() =>
+                    setSelectedModal((prev) =>
+                      prev === "info" ? null : "info"
+                    )
+                  }
                   className="w-12 h-12 bg-black/70 rounded-full flex items-center justify-center transition"
                 >
                   <InfoIcon size={24} />
@@ -376,7 +380,11 @@ function App() {
               {/* Pomodoro Button + Modal */}
               <div className="relative">
                 <button
-                  onClick={() => setSelectedModal("pomo")}
+                  onClick={() =>
+                    setSelectedModal((prev) =>
+                      prev === "pomo" ? null : "pomo"
+                    )
+                  }
                   className="w-12 h-12 bg-black/70 rounded-full flex items-center justify-center transition"
                 >
                   <TimerIcon size={24} />
@@ -391,7 +399,11 @@ function App() {
               {/* Todo Button + Modal */}
               <div className="relative">
                 <button
-                  onClick={() => setSelectedModal("todo")}
+                  onClick={() =>
+                    setSelectedModal((prev) =>
+                      prev === "todo" ? null : "todo"
+                    )
+                  }
                   className="w-12 h-12 bg-black/70 rounded-full flex items-center justify-center transition"
                 >
                   <CheckSquareIcon size={24} />
